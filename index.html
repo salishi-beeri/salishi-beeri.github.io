@@ -698,7 +698,11 @@ function computeStats(d, f) {
     const t = teachers[l.teacherEmail] = teachers[l.teacherEmail] || { name: l.teacherName, planned: 0, due: 0, reported: 0, held: 0, notHeld: 0, postponed: 0, missing: 0 };
     const sched = l.kind !== 'השלמה';
     const isMissing = !l.status && l.date < today;
-    if (sched) t.planned++;
+    // שעות (שיעורים) – שיעור קבוצתי נספר פעם אחת, גם אם השתתפו בו כמה בנות
+    if (sched) { t.planned++; tot.planned++; }
+    if (l.status === HELD) tot.held++;
+    if (l.status === NOT_HELD) tot.notHeld++;
+    if (l.status === POSTPONED) tot.postponed++;
     if (l.status || l.date < today) t.due++;
     if (l.status) t.reported++;
     if (isMissing) { t.missing++; tot.missingL++; missing.push(l); }
@@ -710,14 +714,14 @@ function computeStats(d, f) {
     }
     l.students.filter(stuOk).forEach(s => {
       const p = per[s.id] || (per[s.id] = newRow(studentInfo[s.id] || s));
-      if (sched) { p.planned++; tot.planned++; if (l.status || l.date < today) p.due++; }
+      if (sched) { p.planned++; if (l.status || l.date < today) p.due++; }
       if (isMissing) { p.missing++; p.missingTeachers[l.teacherName] = 1; }
       if (l.status === HELD) {
-        p.held++; tot.held++;
+        p.held++;
         if (s.present === false) { p.absent++; tot.absent++; addReason(absenceReasons, s.reason); } else { p.present++; tot.present++; }
       }
-      if (l.status === NOT_HELD) { p.notHeld++; tot.notHeld++; addReason(p.reasons, l.reason); }
-      if (l.status === POSTPONED) { p.postponed++; tot.postponed++; addReason(p.reasons, l.reason); }
+      if (l.status === NOT_HELD) { p.notHeld++; addReason(p.reasons, l.reason); }
+      if (l.status === POSTPONED) { p.postponed++; addReason(p.reasons, l.reason); }
     });
   });
   const rows = Object.values(per).sort((a, b) => {

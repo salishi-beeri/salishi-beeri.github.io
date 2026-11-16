@@ -1,5 +1,5 @@
 // נוצר אוטומטית ע"י dev/build-pwa.js – לא לערוך ידנית
-const CACHE = 'sal-65e74f99ea';
+const CACHE = 'sal-80eb2f9f13';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './icons/favicon.png'];
 
 self.addEventListener('install', e => {
