@@ -417,10 +417,16 @@ function installDismissed() { try { return Number(localStorage.getItem('sal_inst
 
 function showInstall() {
   if (!window.API_URL || isStandalone() || installDismissed()) return;
-  if (!installEvt && !isIOS()) return;
+  // בדפדפן של סמסונג ההתקנה יוצרת אפליקציה ש-Google Play Protect חוסם – מפנים לכרום
+  const samsung = /SamsungBrowser/i.test(navigator.userAgent) && /Android/i.test(navigator.userAgent);
+  if (!installEvt && !isIOS() && !samsung) return;
   let bar = document.getElementById('install-bar');
   if (!bar) { bar = document.createElement('div'); bar.id = 'install-bar'; document.body.appendChild(bar); }
-  bar.innerHTML = installEvt
+  const here = location.href.split('#')[0].replace(/^https:\/\//, '');
+  bar.innerHTML = samsung
+    ? `<div class="grow"><b>📲 להתקנה צריך לפתוח בכרום</b><div class="small">בדפדפן הזה ההתקנה נחסמת. פותחים בכרום ולוחצים שם "התקנה".</div></div>
+       <a class="btn pri" href="intent://${h(here)}#Intent;scheme=https;package=com.android.chrome;end">פתיחה בכרום</a><button class="btn ghost" data-a="install-later">סגירה</button>`
+    : installEvt
     ? `<div class="grow"><b>📲 התקנת האפליקציה בטלפון</b><div class="small">כך תיכנסי בלחיצה אחת ממסך הבית</div></div>
        <button class="btn pri" data-a="install-now">התקנה</button><button class="btn ghost" data-a="install-later">לא עכשיו</button>`
     : `<div class="grow"><b>📲 התקנת האפליקציה באייפון</b>
